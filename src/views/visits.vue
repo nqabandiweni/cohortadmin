@@ -20,8 +20,8 @@
          <span v-if="visits.length>0" class=" lbl badge rounded-pill bg-success">Appointments for {{cohort.month}} {{cohort.year}} Cohort</span>
          <div class="bottom">
             
-            <div class="appointment"  v-for="(visit,index) in visits" :key="index"   >
-                <div>
+            <div class="appointment" :class="{active: reasons(visit)}" v-for="(visit,index) in visits" :key="index"   >
+                <div >
                   {{converteDate(visit)}}
                   
                 </div>
@@ -56,7 +56,6 @@ export default {
     return{
       borders:[],
       selected:0,
-      reasons:[],
       errors:{},
       years:[],
       months:["January","February","March","April","May","June","July","August","September","October","November","December"],
@@ -95,6 +94,12 @@ export default {
     converteDate(date_str){
       var  temp_date = date_str.split("-")
         return temp_date[0] + " " + this.months[Number(temp_date[1]-1)] + " "+ temp_date[2]
+    },
+    reasons(date_str){
+        var  temp_date = date_str.split("-")
+        if(this.months[Number(temp_date[1]-1)]=== this.cohort.month){
+            return true
+        }else{ return false}
     }
     
   }
@@ -170,7 +175,7 @@ export default {
 
 }
 .active{
-  border: 2px solid blue;
+  border: 2px solid red;
 }
 
 </style>
