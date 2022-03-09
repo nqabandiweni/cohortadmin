@@ -7,6 +7,7 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import DatePicker from 'vue2-datepicker';
 import 'vue2-datepicker/index.css';
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 Vue.config.productionTip = false
 
