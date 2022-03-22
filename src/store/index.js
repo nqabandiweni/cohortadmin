@@ -8,7 +8,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     Appointments:[],
-    visits:[]
+    visits:[],
+    updatedAppointment:{}
   },
   mutations: {
     setVisits(state, visits) {
@@ -16,6 +17,10 @@ export default new Vuex.Store({
     },
     setAppointments(state, appointments) {
       state.Appointments = appointments;
+
+    },
+    setupdatedAppointment(state,appointment){
+      state.updatedAppointment=appointment
     }
   },
   actions: {
@@ -63,11 +68,85 @@ export default new Vuex.Store({
                 }
               }
             }`,
-          fetchPolicy: 'no-cache'
+          fetchPolicy: "no-cache"
         });
     
         
         commit('setAppointments', response.data.getAllAppointments);
+        
+      } catch (e) {
+        console.log(e.networkError.result.errors)
+      }
+    },
+    async createAppointment({ commit },Appointment) {
+      
+      try {
+        
+        const response = await graphqlClient.mutate({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          mutation: gql`
+            mutation($visit: String!, $input: [CohortInput!]!){
+              createAppointment(visit:$visit , cohorts:$input){
+                __typename
+                ...on AppointmentExistsError{
+                  AppointmentExistsMessage
+                }
+                ...on Appointment{
+                  visit
+                  cohorts {
+                    month
+                    year
+                  }
+                }
+              }
+            }`,
+        variables: { visit:Appointment.visit,input:Appointment.cohorts },
+        fetchPolicy: 'no-cache'
+      });
+    
+        
+    
+        
+      } catch (e) {
+        console.log(e.networkError.result.errors)
+      }
+    },
+    async updateAppointment({ commit },Appointment) {
+      
+      try {
+        
+        const response = await graphqlClient.mutate({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          mutation: gql`
+            mutation($visit: String!, $input: [CohortInput!]!){
+              updateAppointment(visit:$visit , cohorts:$input){
+                __typename
+                ...on AppointmentNotFoundError{
+                  AppointmentNotFoundMessage
+                }
+                ...on Appointment{
+                  visit
+                  cohorts {
+                    month
+                    year
+                  }
+                }
+              }
+        }`,
+        variables: { visit:Appointment.visit,input:Appointment.cohorts },
+        fetchPolicy: 'no-cache'
+      });
+    
+        
+        commit('setupdatedAppointment', response.data.updateAppointment);
         
       } catch (e) {
         console.log(e.networkError.result.errors)

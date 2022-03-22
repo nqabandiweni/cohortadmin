@@ -1,13 +1,13 @@
 <template>
     <div class="container">
         <div class="toprow">
-            <button type="button" class="btn btn-primary">Add</button>
+            <button type="button" class="btn btn-primary" @click=create()>Add</button>
             <date-picker v-model="search" type="date" format="DD-MM-YYYY"></date-picker>
         </div>
         <div  class="appointments">
-            <div v-for="appointment in Appointments" :key="appointment.visit"   class="appointment">
+            <div v-for="(appointment,index) in Appointments" :key="appointment.visit"   class="appointment">
                 <div class="visit">{{converteDate(appointment.visit)}}</div>
-                <div class="cohortcount">Total cohorts: {{appointment.cohorts.length}}</div>
+                <div class="cohortcount">Total cohorts: {{total[index]}}</div>
                 <div class="actions"> 
                     <button type="button" class="btn btn-danger btn-sm">Delete</button>
                     <router-link :to="{ name: 'editAppointment', params: { appointment:appointment }}">
@@ -29,9 +29,15 @@ export default {
     components: { DatePicker },
     created(){
         this.populate()
+       
     },
     computed:{
-        ...mapState(['Appointments'])
+        ...mapState(['Appointments']),
+        total:function(){
+            return this.Appointments.map(
+                item => item.cohorts.length
+            );
+        }
     },
     data(){
         return{
@@ -41,7 +47,12 @@ export default {
     },
     methods:{
         populate(){
+    
             this.$store.dispatch('fetchAllAppointments')
+           
+        },
+        create(){
+            this.$router.push("/createAppointment")
         },
         converteDate(date_str){
             var  temp_date = date_str.split("-")

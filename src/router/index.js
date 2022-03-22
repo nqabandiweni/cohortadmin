@@ -30,6 +30,11 @@ const routes = [
     name: 'editAppointment',
     component: () => import('../views/editAppointment.vue'),
     props:true
+  },
+  {
+    path: '/createAppointment',
+    name: 'createAppointment',
+    component: () => import('../views/createAppointment.vue')
   }
 ]
 

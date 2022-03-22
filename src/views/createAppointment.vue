@@ -1,19 +1,10 @@
 <template>
     <div class="container">
         <div class="visit">
-            <input v-model="editing.visit" type="text"  readonly>
+            <date-picker v-model="appointment.visit" type="date" value-type="DD-MM-YYYY"></date-picker>
         </div>
         <button  class="btn btn-success" @click="addCohort()"><i class="bi bi-plus"/>Add Cohort</button>
         <div class="cohortsrow">
-            <div class="cohorts">
-                <span>Cohorts:</span>
-                <div v-for="(cohort,index) in editing.cohorts"   :key="index"  class="cohort">
-                    <div class="cohortmonth">{{cohort.month}}</div>
-                    <div class="cohortyear">{{cohort.year}}</div>
-                    <div class="cohortaction" @click="remove(index)"> <i class="bi bi-trash-fill"></i> </div> 
-                    
-                </div>
-            </div>
             <div v-if="newCohorts.length>0" class="cohorts">
                 <span> New Cohorts:</span>
                 <div v-for="(nc,index) in newCohorts"   :key="index"  class="newcohort">
@@ -37,82 +28,40 @@
                 </div>
             </div>
         </div>
-               <button  class="btn btn-success" @click="sendEdited()"><i class="bi bi-plus"/>send</button>
-        
+               <button  class="btn btn-success"  @click="send()"><i class="bi bi-plus"/>send</button>
+        {{appointment.visit}}
     </div>
     
 </template>
 <script>
+import DatePicker from 'vue2-datepicker';
+import 'vue2-datepicker/index.css';
 export default {
-    name:'editAppointment',
-    props:['appointment'],
+    components: { DatePicker },
     created(){
         this.editing=this.appointment
         this.fillYears()
-        
-
     },
     data(){
         return{
-           
-            months:["January","February","March","April","May","June","July","August","September","October","November","December"],
-            editing:{},
-            years:[],
-            newCohorts:[],
-            edited:{
+            appointment:{
                 visit:"",
                 cohorts:[]
             },
-            duplicates:[]
+            years:[],
+            months:["January","February","March","April","May","June","July","August","September","October","November","December"],
+            newCohorts:[]
+
         }
     },
     methods:{
-        remove:function(index){
-            this.editing.cohorts.splice(index,1)
-        },
-        removeNew:function(index){
-          this.newCohorts.splice(index,1)  
-        },
         addCohort:function(){
             this.newCohorts.push({
                 month:"",
                 year:null})
         },
-        sendEdited:function(){
-            this.edited.visit=this.editing.visit
-            for(var i=0;i<this.editing.cohorts.length;i++){
-                this.edited.cohorts.push({
-                    month:this.editing.cohorts[i].month,
-                    year:this.editing.cohorts[i].year
-                                        })
-            }
-            for(var i=0;i<this.newCohorts.length;i++){
-                 this.edited.cohorts.push({
-                    month:this.newCohorts[i].month,
-                    year:this.newCohorts[i].year
-                                        })
-            }
-            let unique=[]
-            let uniqueObject={}
-            for (let i in this.edited.cohorts) {
-               var objTitle = this.edited.cohorts[i]['month'];
-                // Use the month as the index
-                uniqueObject[objTitle] = this.edited.cohorts[i];
-                console.log(uniqueObject)
-            }
-           
-            // Loop to push unique object into array
-            for (i in uniqueObject) {
-                unique.push(uniqueObject[i]);
-            }
-            this.edited.cohorts=[]
-            for(i in unique){
-                this.edited.cohorts.push(unique[i])
-            }
-            
-            this.$store.dispatch('updateAppointment',this.edited)
-                .then(this.$router.push('/visits'))
-                .catch(err => {this.errors=err})
+        removeNew:function(index){
+          this.newCohorts.splice(index,1)  
         },
         fillYears(){
             var  y=[]
@@ -120,6 +69,19 @@ export default {
                 y.push(i)
             }
             this.years = y
+        },
+        send(){
+             var cohorts = this.newCohorts.filter(function(a){
+                var key = a.month + '|' + a.year;
+                if(!this[key]){
+                    this[key]=true;
+                    return true;
+                }
+            },Object.create(null));
+            this.appointment.cohorts= cohorts
+            this.$store.dispatch('createAppointment',this.appointment)
+                .then(this.$router.push('/appointments'))
+                .catch(err => {this.errors=err})
         }
     }
     
@@ -127,12 +89,15 @@ export default {
 </script>
 <style scoped>
 .container{
-    display: flex;
+     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    align-content: center;
     align-items: center;
-    min-height: 400px;
+    height: 400px;
+    width: 70%;
+    border-radius: 5px;
+}
+.visit{
+    margin-bottom: 5px;
 }
 .cohortsrow{
     display: flex;
@@ -144,6 +109,8 @@ export default {
     height: 250px;
     min-width: 700px;
     border: 1px solid cadetblue;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 .cohort{
     display: flex;
@@ -154,7 +121,6 @@ export default {
     border: 1px solid skyblue;
     border-radius: 5px;
 }
-
 .cohortmonth{
      display: flex;
      justify-content: space-evenly;
