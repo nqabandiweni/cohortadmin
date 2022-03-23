@@ -29,7 +29,6 @@
             </div>
         </div>
                <button  class="btn btn-success"  @click="send()"><i class="bi bi-plus"/>send</button>
-        {{appointment.visit}}
     </div>
     
 </template>

@@ -19,6 +19,9 @@ export default new Vuex.Store({
       state.Appointments = appointments;
 
     },
+    addAppointment(state,appointment){
+      state.Appointments.push(appointment)
+    },
     setupdatedAppointment(state,appointment){
       state.updatedAppointment=appointment
     }
@@ -107,8 +110,12 @@ export default new Vuex.Store({
         variables: { visit:Appointment.visit,input:Appointment.cohorts },
         fetchPolicy: 'no-cache'
       });
-    
-        
+  if(response.data.createAppointment.__typename=="AppointmentExistsError"){
+    console.log(response.data.createAppointment.AppointmentExistsMessage)
+  }else{
+    commit('addAppointment',Appointment)
+  }
+      
     
         
       } catch (e) {
@@ -152,5 +159,40 @@ export default new Vuex.Store({
         console.log(e.networkError.result.errors)
       }
     },
+    async deleteAppointment({ commit },visit) {
+      
+      try {
+        
+        const response = await graphqlClient.mutate({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          mutation: gql`
+            mutation($visit: String!){
+              deleteAppointment(visit:$visit){
+                __typename
+                ...on AppointmentNotFoundError{
+                  AppointmentNotFoundMessage
+                }
+                ...on Appointment{
+                  visit
+                  cohorts {
+                    month
+                    year
+                  }
+                }
+              }
+        }`,
+        variables: { visit:visit },
+        fetchPolicy: 'no-cache'
+      });
+    
+        console.log(response)    
+      } catch (e) {
+        console.log(e.networkError.result.errors)
+      }
+    }
   }
 })

@@ -98,7 +98,7 @@ export default {
                var objTitle = this.edited.cohorts[i]['month'];
                 // Use the month as the index
                 uniqueObject[objTitle] = this.edited.cohorts[i];
-                console.log(uniqueObject)
+              
             }
            
             // Loop to push unique object into array
@@ -111,7 +111,7 @@ export default {
             }
             
             this.$store.dispatch('updateAppointment',this.edited)
-                .then(this.$router.push('/visits'))
+                .then(this.$router.push('/appointments'))
                 .catch(err => {this.errors=err})
         },
         fillYears(){
