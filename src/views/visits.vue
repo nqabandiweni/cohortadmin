@@ -18,6 +18,7 @@
           
         </div>
          <span v-if="visits.length>0" class=" lbl badge rounded-pill bg-success">Appointments for {{cohort.month}} {{cohort.year}} Cohort</span>
+         <span v-else class=" lbl badge rounded-pill bg-danger">No Appointments for {{cohort.month}} {{cohort.year}} Cohort</span>
          <div class="bottom">
             
             <div class="appointment" :class="{active: reasons(visit)}" v-for="(visit,index) in visits" :key="index"   >
