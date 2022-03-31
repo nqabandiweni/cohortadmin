@@ -2,8 +2,8 @@
     <div class="container">
         <div class="toprow">
             <button type="button" class="btn btn-primary" @click=create()>Add</button>
-                       <date-picker v-model="search" type="date"  value-type="DD-MM-YYYY"></date-picker>
-            {{search}}
+                <date-picker v-model="search" type="date"  value-type="DD-MM-YYYY"></date-picker>
+          
         </div>
         <div  class="appointments">
             <div v-for="(appointment,index) in Appointments" :key="appointment.visit"   class="appointment">

@@ -7,8 +7,8 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'visits',
+    component: () => import('../views/visits.vue')
   },
   {
     path: '/addVisit',
@@ -19,11 +19,6 @@ const routes = [
     path: '/appointments',
     name: 'Appointments',
     component: () => import('../views/Appointments.vue')
-  },
-  {
-    path: '/visits',
-    name: 'visits',
-    component: () => import('../views/visits.vue')
   },
   {
     path: '/editAppointment',

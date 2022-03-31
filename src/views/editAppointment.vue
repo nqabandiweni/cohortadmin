@@ -79,40 +79,27 @@ export default {
                 year:null})
         },
         sendEdited:function(){
-            this.edited.visit=this.editing.visit
-            for(var i=0;i<this.editing.cohorts.length;i++){
-                this.edited.cohorts.push({
+             this.edited.visit=this.editing.visit
+             for(var i=0;i<this.editing.cohorts.length;i++){
+                this.newCohorts.push({
                     month:this.editing.cohorts[i].month,
                     year:this.editing.cohorts[i].year
                                         })
             }
-            for(var i=0;i<this.newCohorts.length;i++){
-                 this.edited.cohorts.push({
-                    month:this.newCohorts[i].month,
-                    year:this.newCohorts[i].year
-                                        })
-            }
-            let unique=[]
-            let uniqueObject={}
-            for (let i in this.edited.cohorts) {
-               var objTitle = this.edited.cohorts[i]['month'];
-                // Use the month as the index
-                uniqueObject[objTitle] = this.edited.cohorts[i];
-              
-            }
-           
-            // Loop to push unique object into array
-            for (i in uniqueObject) {
-                unique.push(uniqueObject[i]);
-            }
-            this.edited.cohorts=[]
-            for(i in unique){
-                this.edited.cohorts.push(unique[i])
-            }
-            
+            console.log("hi")
+             var cohorts = this.newCohorts.filter(function(a){
+                var key = a.month + '|' + a.year;
+                if(!this[key]){
+                    this[key]=true;
+                    return true;
+                }
+            },Object.create(null));
+
+            this.edited.cohorts= cohorts
             this.$store.dispatch('updateAppointment',this.edited)
-                .then(this.$router.push('/appointments'))
+                .then(this.$router.push('/'))
                 .catch(err => {this.errors=err})
+
         },
         fillYears(){
             var  y=[]
