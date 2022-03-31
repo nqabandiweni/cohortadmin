@@ -86,7 +86,7 @@ export default {
                     year:this.editing.cohorts[i].year
                                         })
             }
-            console.log("hi")
+           
              var cohorts = this.newCohorts.filter(function(a){
                 var key = a.month + '|' + a.year;
                 if(!this[key]){
