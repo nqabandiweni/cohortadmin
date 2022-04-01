@@ -9,7 +9,8 @@ export default new Vuex.Store({
   state: {
     Appointments:[],
     visits:[],
-    updatedAppointment:{}
+    updatedAppointment:{},
+    AppointmentExistsMessage:""
   },
   mutations: {
     setVisits(state, visits) {
@@ -24,6 +25,9 @@ export default new Vuex.Store({
     },
     setupdatedAppointment(state,appointment){
       state.updatedAppointment=appointment
+    },
+    setAppointmentExistsMessage(state,message){
+      state.AppointmentExistsMessage=message
     }
   },
   actions: {
@@ -111,7 +115,7 @@ export default new Vuex.Store({
         fetchPolicy: 'no-cache'
       });
   if(response.data.createAppointment.__typename=="AppointmentExistsError"){
-    console.log(response.data.createAppointment.AppointmentExistsMessage)
+    commit('setAppointmentExistsMessage',response.data.createAppointment.AppointmentExistsMessage)
   }else{
     commit('addAppointment',Appointment)
   }

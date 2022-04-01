@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.a6389af006492d84747e963c3fb4c90d.js"
+  "/precache-manifest.79b7ea80e6663ca04a5977ad93bfa64d.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "cohortadmin"});

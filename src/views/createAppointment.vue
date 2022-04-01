@@ -80,7 +80,7 @@ export default {
             this.appointment.cohorts= cohorts
             this.$store.dispatch('createAppointment',this.appointment)
                 .then(this.$router.push('/appointments'))
-                .catch(err => {this.errors=err})
+                .catch(err => console.log(err))
         }
     }
     
