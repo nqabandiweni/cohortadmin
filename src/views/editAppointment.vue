@@ -97,7 +97,7 @@ export default {
 
             this.edited.cohorts= cohorts
             this.$store.dispatch('updateAppointment',this.edited)
-                .then(this.$router.push('/'))
+                .then(this.$router.push('/visits'))
                 .catch(err => {this.errors=err})
 
         },

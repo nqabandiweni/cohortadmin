@@ -10,7 +10,10 @@ export default new Vuex.Store({
     Appointments:[],
     visits:[],
     updatedAppointment:{},
-    AppointmentExistsMessage:""
+    AppointmentExistsMessage:"",
+    token: localStorage.getItem('token') || '',
+    loginError:"",
+    username:""
   },
   mutations: {
     setVisits(state, visits) {
@@ -28,9 +31,27 @@ export default new Vuex.Store({
     },
     setAppointmentExistsMessage(state,message){
       state.AppointmentExistsMessage=message
+    },
+    setLoginError(state,message){
+      state.loginError=message
+    },
+    setLoginSuccess(state,data){
+   
+      localStorage.setItem('token',data.token) 
+      state.username=data.username
+
+    },
+    logout(state){
+      state.token=""
+      state.username =""
     }
   },
   actions: {
+    //logout
+    logout(context) {
+      context.commit('logout')
+      localStorage.clear()
+  },
     //get visits by cohort
     async fetchVisits({ commit }, cohort) {
       try {
@@ -59,6 +80,7 @@ export default new Vuex.Store({
     ////////////////////////////////////////////////////////////////////
     async fetchAllAppointments({ commit }) {
       try {
+   
         const response = await graphqlClient.query({
           // It is important to not use the
           // ES6 template syntax for variables
@@ -112,6 +134,7 @@ export default new Vuex.Store({
               }
             }`,
         variables: { visit:Appointment.visit,input:Appointment.cohorts },
+
         fetchPolicy: 'no-cache'
       });
   if(response.data.createAppointment.__typename=="AppointmentExistsError"){
@@ -197,6 +220,55 @@ export default new Vuex.Store({
       } catch (e) {
         console.log(e.networkError.result.errors)
       }
+    },
+    async login({ commit },{username,password}) {
+      
+      
+      try {
+        
+        const response = await graphqlClient.mutate({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          mutation: gql`
+            mutation($username: String!,$password: String!){
+              login(username:$username,password:$password){
+                __typename
+                  ...on invalidPasswordError{
+                    invalidPasswordMessage
+                  }
+                  ...on userNotFoundError{
+                    userNotFoundMessage
+                  }
+                  ...on loginSuccess{
+                    username
+                    token
+                  }
+                  }
+                }`,
+
+        variables: { username:username,password:password },
+        fetchPolicy: 'no-cache'
+      });
+      
+      
+          if(response.data.login.__typename=="invalidPasswordError"){
+            commit('setLoginError',response.data.login.invalidPasswordMessage)
+          }else if(response.data.login.__typename=="userNotFoundError"){
+          
+            commit('setLoginError',response.data.login.userNotFoundMessage)
+          }else{
+            //console.log(response.data.login.token)
+            commit('setLoginSuccess',response.data.login)
+          }    
+      } catch (e) {
+        console.log(e)
+      }
     }
+  },
+  getters:{
+    isLoggedIn: state => !!state.token,
   }
 })
