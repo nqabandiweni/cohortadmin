@@ -36,8 +36,8 @@ export default new Vuex.Store({
       state.loginError=message
     },
     setLoginSuccess(state,data){
-   
       localStorage.setItem('token',data.token) 
+      state.token =data.token
       state.username=data.username
 
     },
