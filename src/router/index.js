@@ -41,7 +41,12 @@ const routes = [
     name: 'createAppointment',
     component: () => import('../views/createAppointment.vue'),
     meta:{requiresAuth:true}
-  }
+  },
+  {
+    path: '/users',
+    name: 'users',
+    component: () => import('../views/users.vue')
+  },
 ]
 
 const router = new VueRouter({

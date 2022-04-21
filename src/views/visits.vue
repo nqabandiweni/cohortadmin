@@ -45,12 +45,10 @@ export default {
   created(){
     this.fillYears()
     this.search()
+    
      
   },
   computed :{
-    
-
-    
     ...mapState(['visits'])
   },
   data(){

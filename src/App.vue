@@ -2,7 +2,9 @@
   <div id="app">
     <div id="nav">
       <router-link  v-if="isLoggedIn" to="/visits">Visits</router-link>|
-      <router-link  v-if="isLoggedIn" to="/appointments">Appointments</router-link>|
+      <router-link  v-if="isLoggedIn && role==='admin' " to="/appointments">Appointments</router-link>|
+      <router-link  to="/users">Users</router-link>|
+      <div v-if="isLoggedIn"> {{username}}</div>
       <button v-if="isLoggedIn" type="submit" class="btn btn-primary mt-3" @click="logout()">Logout</button>
     </div>
     <router-view/>
@@ -17,7 +19,7 @@ export default {
     }
   },
   computed:{
-    ...mapGetters(['isLoggedIn'])
+    ...mapGetters(['isLoggedIn','role','username'])
   },
   methods:{
     logout:function(){

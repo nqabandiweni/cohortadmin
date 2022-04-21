@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import gql from 'graphql-tag';
 import graphqlClient from '../utils/graphql';
+const jwt = require('jsonwebtoken')
 
 Vue.use(Vuex)
 
@@ -12,8 +13,7 @@ export default new Vuex.Store({
     updatedAppointment:{},
     AppointmentExistsMessage:"",
     token: localStorage.getItem('token') || '',
-    loginError:"",
-    username:""
+    loginError:""
   },
   mutations: {
     setVisits(state, visits) {
@@ -38,12 +38,9 @@ export default new Vuex.Store({
     setLoginSuccess(state,data){
       localStorage.setItem('token',data.token) 
       state.token =data.token
-      state.username=data.username
-
     },
     logout(state){
       state.token=""
-      state.username =""
     }
   },
   actions: {
@@ -270,5 +267,24 @@ export default new Vuex.Store({
   },
   getters:{
     isLoggedIn: state => !!state.token,
+    role:state=>{
+      if(state.token){
+        const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+        return decoded.user.role
+      }else{
+        return null
+      }
+    
+      
+    },
+    username:state=>{
+      if(state.token){
+        const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+        return decoded.user.username
+      }else{
+        return null
+      }
+        
+      }
   }
 })
