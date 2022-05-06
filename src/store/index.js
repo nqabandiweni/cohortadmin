@@ -218,7 +218,55 @@ export default new Vuex.Store({
         console.log(e.networkError.result.errors)
       }
     },
-    async login({ commit },{username,password}) {
+    login({ commit },{username,password}) {
+      return new Promise((resolve, reject) => {
+         graphqlClient.mutate({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          mutation: gql`
+            mutation($username: String!,$password: String!){
+              login(username:$username,password:$password){
+                __typename
+                  ...on invalidPasswordError{
+                    invalidPasswordMessage
+                  }
+                  ...on userNotFoundError{
+                    userNotFoundMessage
+                  }
+                  ...on loginSuccess{
+                    username
+                    token
+                  }
+                  }
+                }`,
+
+        variables: { username:username,password:password },
+        fetchPolicy: 'no-cache'
+      })
+          .then(response => {
+            if(response.data.login.__typename=="invalidPasswordError"){
+              commit('setLoginError',response.data.login.invalidPasswordMessage)
+            }else if(response.data.login.__typename=="userNotFoundError"){
+            
+              commit('setLoginError',response.data.login.userNotFoundMessage)
+            }else{
+              //console.log(response.data.login.token)
+              commit('setLoginSuccess',response.data.login)
+            } 
+            
+              resolve(response)
+          })
+          .catch(err => { 
+           // console.log(err)   
+            
+            reject(err)
+          })
+      })
+    },
+    async llogin({ commit },{username,password}) {
       
       
       try {

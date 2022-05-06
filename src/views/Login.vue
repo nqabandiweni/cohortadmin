@@ -18,6 +18,7 @@
 
 </template>
 <script>
+import {respond} from '../utils/handleResponses.js'
 export default {
     data(){
         return{
@@ -30,8 +31,15 @@ export default {
         login: function(e){
            
             this.$store.dispatch('login',{username:this.username,password:this.password})
-            .then(()=>{
-                this.$router.push("/visits")
+            .then((resp)=>{
+               let result = respond(resp.data.login)
+              
+               if(result.type==="error"){
+                   console.log(result.text)
+               }else{
+                   this.$router.push("/visits")
+               }
+                
                 })
             .catch(err => console.log(err))
         }
