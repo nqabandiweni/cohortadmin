@@ -11,7 +11,7 @@ import {ApolloLink} from 'apollo-boost'
 //   // fast subsequent queries.
 //   cache: new InMemoryCache(),
 // });
-const httpLink = new HttpLink({ uri: 'http://127.0.0.1:5000/graphql' });
+const httpLink = new HttpLink({ uri: 'https://ecohortbackend.herokuapp.com/graphql' });
 
 const authLink = new ApolloLink((operation, forward) => {
   // Retrieve the authorization token from local storage.
