@@ -2,6 +2,10 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import gql from 'graphql-tag';
 import graphqlClient from '../utils/graphql';
+import {LOGIN} from '../Mutations/Users'
+import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
+import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
+import {respond} from '../utils/handleResponses'
 const jwt = require('jsonwebtoken')
 
 Vue.use(Vuex)
@@ -12,8 +16,9 @@ export default new Vuex.Store({
     visits:[],
     updatedAppointment:{},
     AppointmentExistsMessage:"",
-    token: localStorage.getItem('token') || '',
-    loginError:""
+    token: localStorage.getItem('token') || null,
+    loginError:"",
+    isLoading:false
   },
   mutations: {
     setVisits(state, visits) {
@@ -36,11 +41,15 @@ export default new Vuex.Store({
       state.loginError=message
     },
     setLoginSuccess(state,data){
+      console.log(data)
       localStorage.setItem('token',data.token) 
       state.token =data.token
     },
     logout(state){
       state.token=""
+    },
+    setLoading(state,status){
+      state.isLoading=status
     }
   },
   actions: {
@@ -58,11 +67,7 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          query: gql`
-            query GetVisits($cohort: CohortInput!) {
-              getVisits(cohort: $cohort) 
-            }
-          `,
+          query: GET_VISITS,
           variables: { cohort: cohort },
           fetchPolicy: 'no-cache'
         });
@@ -84,16 +89,7 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          query: gql`
-            query GetAllAppointments {
-              getAllAppointments {
-                visit
-                cohorts{
-                  month
-                  year
-                }
-              }
-            }`,
+          query:GET_ALL_APPOINTMENTS,
           fetchPolicy: "no-cache"
         });
     
@@ -114,22 +110,8 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          mutation: gql`
-            mutation($visit: String!, $input: [CohortInput!]!){
-              createAppointment(visit:$visit , cohorts:$input){
-                __typename
-                ...on AppointmentExistsError{
-                  AppointmentExistsMessage
-                }
-                ...on Appointment{
-                  visit
-                  cohorts {
-                    month
-                    year
-                  }
-                }
-              }
-            }`,
+          mutation: 
+          CREATE_APPOINTMENT,
         variables: { visit:Appointment.visit,input:Appointment.cohorts },
 
         fetchPolicy: 'no-cache'
@@ -156,22 +138,7 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          mutation: gql`
-            mutation($visit: String!, $input: [CohortInput!]!){
-              updateAppointment(visit:$visit , cohorts:$input){
-                __typename
-                ...on AppointmentNotFoundError{
-                  AppointmentNotFoundMessage
-                }
-                ...on Appointment{
-                  visit
-                  cohorts {
-                    month
-                    year
-                  }
-                }
-              }
-        }`,
+          mutation: UPDATE_APPOINTMENT,
         variables: { visit:Appointment.visit,input:Appointment.cohorts },
         fetchPolicy: 'no-cache'
       });
@@ -193,144 +160,79 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          mutation: gql`
-            mutation($visit: String!){
-              deleteAppointment(visit:$visit){
-                __typename
-                ...on AppointmentNotFoundError{
-                  AppointmentNotFoundMessage
-                }
-                ...on Appointment{
-                  visit
-                  cohorts {
-                    month
-                    year
-                  }
-                }
-              }
-        }`,
+          mutation:DELETE_APPOINTMENT,
         variables: { visit:visit },
         fetchPolicy: 'no-cache'
       });
     
-        console.log(response)    
+          
       } catch (e) {
         console.log(e.networkError.result.errors)
       }
     },
     login({ commit },{username,password}) {
+
+      commit('setLoading',true)
       return new Promise((resolve, reject) => {
          graphqlClient.mutate({
-          // It is important to not use the
-          // ES6 template syntax for variables
-          // directly inside the `gql` query,
-          // because this would make it impossible
-          // for Babel to optimize the code.
-          mutation: gql`
-            mutation($username: String!,$password: String!){
-              login(username:$username,password:$password){
-                __typename
-                  ...on invalidPasswordError{
-                    invalidPasswordMessage
-                  }
-                  ...on userNotFoundError{
-                    userNotFoundMessage
-                  }
-                  ...on loginSuccess{
-                    username
-                    token
-                  }
-                  }
-                }`,
-
-        variables: { username:username,password:password },
-        fetchPolicy: 'no-cache'
+          mutation: LOGIN,
+          variables: { username:username,password:password },
+          fetchPolicy: 'no-cache'
       })
           .then(response => {
+     
             if(response.data.login.__typename=="invalidPasswordError"){
               commit('setLoginError',response.data.login.invalidPasswordMessage)
             }else if(response.data.login.__typename=="userNotFoundError"){
-            
               commit('setLoginError',response.data.login.userNotFoundMessage)
+            }else if(response.data.login.__typename=="invalidDataError"){
+              commit('setLoginError',response.data.login.invalidDataMessage)
+            
             }else{
               //console.log(response.data.login.token)
               commit('setLoginSuccess',response.data.login)
             } 
-            
+            commit('setLoading',false)
               resolve(response)
           })
           .catch(err => { 
            // console.log(err)   
-            
+           commit('setLoading',false)
             reject(err)
           })
       })
-    },
-    async llogin({ commit },{username,password}) {
-      
-      
-      try {
-        
-        const response = await graphqlClient.mutate({
-          // It is important to not use the
-          // ES6 template syntax for variables
-          // directly inside the `gql` query,
-          // because this would make it impossible
-          // for Babel to optimize the code.
-          mutation: gql`
-            mutation($username: String!,$password: String!){
-              login(username:$username,password:$password){
-                __typename
-                  ...on invalidPasswordError{
-                    invalidPasswordMessage
-                  }
-                  ...on userNotFoundError{
-                    userNotFoundMessage
-                  }
-                  ...on loginSuccess{
-                    username
-                    token
-                  }
-                  }
-                }`,
-
-        variables: { username:username,password:password },
-        fetchPolicy: 'no-cache'
-      });
-      
-      
-          if(response.data.login.__typename=="invalidPasswordError"){
-            commit('setLoginError',response.data.login.invalidPasswordMessage)
-          }else if(response.data.login.__typename=="userNotFoundError"){
-          
-            commit('setLoginError',response.data.login.userNotFoundMessage)
-          }else{
-            //console.log(response.data.login.token)
-            commit('setLoginSuccess',response.data.login)
-          }    
-      } catch (e) {
-        console.log(e)
-      }
     }
   },
   getters:{
-    isLoggedIn: state => !!state.token,
+    isLoggedIn: state => {
+      const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+      if(state.token==null){
+        return false
+      }else if(decoded.user){
+        return true
+      }else{
+        return false
+      }
+    },
     role:state=>{
-      if(state.token){
+    
+      if(state.token==null){
+        return "norole"
+        
+      }else{
         const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
         return decoded.user.role
-      }else{
-        return null
       }
     
       
     },
     username:state=>{
-      if(state.token){
+      if(state.token==null){
+        return "no username"
+      }else{
         const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
         return decoded.user.username
-      }else{
-        return null
+        
       }
         
       }
