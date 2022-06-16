@@ -17,6 +17,14 @@ export function respond (i){
             message.type = "error"
             message.text = i.invalidDataMessage
             break
+        case 'loginSuccess':
+            message.type = "success"
+            message.text = ""
+            break
+        default:
+            message.type = "error"
+            message.text = "Network Error"
+
     }
     return message
 }

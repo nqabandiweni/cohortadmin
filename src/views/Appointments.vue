@@ -5,6 +5,7 @@
                 <date-picker v-model="search" type="date"  value-type="DD-MM-YYYY"></date-picker>
           
         </div>
+        
         <div  class="appointments">
             <div v-for="(appointment,index) in Appointments" :key="appointment.visit"   class="appointment">
                 <div class="visit">{{converteDate(appointment.visit)}}</div>

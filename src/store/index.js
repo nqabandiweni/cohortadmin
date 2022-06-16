@@ -5,6 +5,7 @@ import graphqlClient from '../utils/graphql';
 import {LOGIN} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
+import { GET_ADMINS } from '../Queries/Users';
 import {respond} from '../utils/handleResponses'
 const jwt = require('jsonwebtoken')
 
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     visits:[],
     updatedAppointment:{},
     AppointmentExistsMessage:"",
+    admins:[],
     token: localStorage.getItem('token') || null,
     loginError:"",
     isLoading:false
@@ -41,9 +43,12 @@ export default new Vuex.Store({
       state.loginError=message
     },
     setLoginSuccess(state,data){
-      console.log(data)
+     
       localStorage.setItem('token',data.token) 
       state.token =data.token
+    },
+    setAdmins(state,data){
+      state.admins=data
     },
     logout(state){
       state.token=""
@@ -58,6 +63,27 @@ export default new Vuex.Store({
       context.commit('logout')
       localStorage.clear()
   },
+  
+    //get users with role admin
+    async getAdmins({ commit }) {
+      try {
+        const response = await graphqlClient.query({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          query: GET_ADMINS,
+          fetchPolicy: 'no-cache'
+        });
+    
+        
+        commit('setAdmins', response.data.getAdmins);
+        
+      } catch (e) {
+        console.log(e.networkError.result.errors)
+      }
+    },
     //get visits by cohort
     async fetchVisits({ commit }, cohort) {
       try {
@@ -205,34 +231,39 @@ export default new Vuex.Store({
   },
   getters:{
     isLoggedIn: state => {
-      const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
-      if(state.token==null){
+      // const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+      // if(state.token==null){
+      //   return false
+      // }else if(decoded.user){
+      //   return true
+      // }else{
+      //   return false
+      // }
+      if(state.token == null || state.token == ""){
         return false
-      }else if(decoded.user){
-        return true
-      }else{
-        return false
+      }else {
+      return true
       }
     },
-    role:state=>{
+    role:(state,getters)=>{
     
-      if(state.token==null){
-        return "norole"
-        
-      }else{
+      if(getters.isLoggedIn){
         const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
         return decoded.user.role
+      }
+      else{
+        return null
       }
     
       
     },
-    username:state=>{
-      if(state.token==null){
-        return "no username"
-      }else{
+    username:(state,getters)=>{
+      if(getters.isLoggedIn){
         const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
         return decoded.user.username
-        
+      }
+      else{
+        return null
       }
         
       }

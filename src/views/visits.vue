@@ -4,7 +4,7 @@
       <div class="box">
         <span class=" lbl badge rounded-pill bg-primary">Select Cohort Below</span>
         <div class="top">
-      
+        
           <select class=" month form-select form-select-xs" v-model="cohort.month">
             <option v-for="month in months" :value="month" :key="month" >
               {{ month}}

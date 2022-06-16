@@ -1,13 +1,18 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link  v-if="isLoggedIn" to="/visits">Visits</router-link>|
-      <router-link  v-if="isLoggedIn && role==='admin' " to="/appointments">Appointments</router-link>|
-      <router-link  to="/users">Users</router-link>|
-      <div v-if="isLoggedIn"> {{username}}</div>
-      <button v-if="isLoggedIn" type="submit" class="btn btn-primary mt-3" @click="logout()">Logout</button>
-    </div>
+    <nav v-if="isLoggedIn"  class="navbar fixed-top navbar-dark bg-dark" style="background-color: #b8b0c7;">
+      <a class="navbar-brand" href="#">ECOHORT</a>
+      <a class="nav-item nav-link" href="/visits">Visits</a>
+      <a class="nav-item nav-link" href="/appointments">Appointments</a>
+       <a class="nav-item nav-link" href="/admins">Admins</a>
+      <a class="nav-item nav-link" href="/appointments">Facilities</a>
+      <div class="username">{{username}}</div>
+      <button v-if="isLoggedIn" type="submit" class="btn btn-primary " style="margin-right: 2%;" @click="logout()">Logout</button>
+    </nav>
+   
+    <div class="view">
     <router-view/>
+    </div>
   </div>
 </template>
 <script>
@@ -25,7 +30,7 @@ export default {
     logout:function(){
       this.$store.dispatch('logout').then(() => {
             
-            this.$router.replace("/");
+            this.$router.push("/");
           });
     }
   }
@@ -52,6 +57,20 @@ export default {
 }
 
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: #b8b0c7;
 }
+.view{
+  margin-top: 100px;
+}
+.routerLink{
+     text-decoration: none;
+ }
+ .username{
+   border: 2px dotted blue;
+   background-color: white;
+   border-radius: 5px ;
+   padding: 1px;
+   color: black;
+ }
+
 </style>

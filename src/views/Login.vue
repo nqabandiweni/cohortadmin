@@ -55,7 +55,7 @@ export default {
                    this.showError=true
                    
                    
-               }else{
+               }else if(result.type==="success"){
                    this.$router.push("/visits")
                }
                 
