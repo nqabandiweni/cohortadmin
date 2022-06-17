@@ -1,94 +1,60 @@
 <template>
-    <div class="wrapper">
-        <div v-for="n in 4"  :key="n"    class="user">
-            <div class="attrib">
-                <div class="heading">
-                    Username
-                </div>
-                Nqaba
-            </div>
-            <div class="attrib">
-                <div class="heading">
-                    Name
-                  
-                </div>
-                Nqaba
-            </div>
-            <div class="attrib">
-                <div class="heading">
-                    Surname
-                  
-                </div>
-                Ndiweni
-            </div>
-            <div class="attrib">
-                <div class="heading">
-                    Role
-                  
-                </div>
-                Admin
-            </div>
-            <div class="attrib">
-                <div class="heading">
-                    Action
-                </div>
-                <div class="actions">
-                    <div class="delete">
-                        <i class="bi bi-trash-fill text-danger"></i>
-                    </div>
-                    <div class="edit">
-                        <i class="bi bi-pencil-fill text-warning"></i>
-                    </div>
-                </div>
-            </div>
-
+    <div class="container">
+        <div class="cont">
+        <div class="toprow">
+            <button type="button" class="btn btn-primary" >Add New</button>
+        </div>
+        <table class="table table-sm table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Surname</th>
+                    <th scope="col">Facility</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="user in users" :key="user.username"> 
+                    <td>{{user.name}}</td>
+                    <td>{{user.surname}}</td>
+                    <td>{{user.code}}</td>
+                </tr>
+            </tbody>
+        </table>
         </div>
     </div>
-    
 </template>
 <script>
+import {mapState} from 'vuex'
 export default {
-    
+    created(){
+        this.$store.dispatch('getUsers')
+    },
+    computed:{
+        ...mapState(['users'])
+    },
+    data(){
+        return{
+
+        }
+    }
 }
 </script>
 <style scoped>
-.wrapper{
+.container{
     display: flex;
+    flex-direction: row;     /* make main axis horizontal (default setting) */
+    justify-content: center; /* center items horizontally, in this case */
+    
+}
+.cont{
+    display:flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    justify-items: space-between;
-    border:1px solid black;
-    
+    width:100%;
 }
-.user{
+.toprow{
     display: flex;
-    flex-wrap: nowrap;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    
-    
+    flex-direction: row;
+    justify-content: flex-end;
 }
-.attrib{
-    display: flex;
-    flex-direction: column;
-    border: 1px solid paleturquoise;
-    border-radius: 5px;
-    width: 150px;
-    height: 50px; 
-    margin-left: 5px;  
-}
-.heading{
-    border:1px solid paleturquoise;
-    border-radius: 5px;
-    color: whitesmoke;
-    background-color: paleturquoise;
-}
-.actions{
-    display: flex;
-    justify-content: space-evenly;
-}
-
-
-
 </style>

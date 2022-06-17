@@ -5,7 +5,7 @@ import graphqlClient from '../utils/graphql';
 import {LOGIN} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
-import { GET_ADMINS } from '../Queries/Users';
+import { GET_USERS } from '../Queries/Users';
 import {respond} from '../utils/handleResponses'
 const jwt = require('jsonwebtoken')
 
@@ -17,7 +17,7 @@ export default new Vuex.Store({
     visits:[],
     updatedAppointment:{},
     AppointmentExistsMessage:"",
-    admins:[],
+    users:[],
     token: localStorage.getItem('token') || null,
     loginError:"",
     isLoading:false
@@ -47,8 +47,8 @@ export default new Vuex.Store({
       localStorage.setItem('token',data.token) 
       state.token =data.token
     },
-    setAdmins(state,data){
-      state.admins=data
+    setUsers(state,data){
+      state.users=data
     },
     logout(state){
       state.token=""
@@ -64,8 +64,8 @@ export default new Vuex.Store({
       localStorage.clear()
   },
   
-    //get users with role admin
-    async getAdmins({ commit }) {
+    //get users 
+    async getUsers({ commit }) {
       try {
         const response = await graphqlClient.query({
           // It is important to not use the
@@ -73,12 +73,12 @@ export default new Vuex.Store({
           // directly inside the `gql` query,
           // because this would make it impossible
           // for Babel to optimize the code.
-          query: GET_ADMINS,
+          query: GET_USERS,
           fetchPolicy: 'no-cache'
         });
     
         
-        commit('setAdmins', response.data.getAdmins);
+        commit('setUsers', response.data.getUsers);
         
       } catch (e) {
         console.log(e.networkError.result.errors)

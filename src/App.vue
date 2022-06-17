@@ -1,10 +1,10 @@
 <template>
   <div id="app">
-    <nav v-if="isLoggedIn"  class="navbar fixed-top navbar-dark bg-dark" style="background-color: #b8b0c7;">
+    <nav v-if="isLoggedIn"  class="navbar fixed-top navbar-dark bg-dark " style="background-color: #b8b0c7;">
       <a class="navbar-brand" href="#">ECOHORT</a>
       <a class="nav-item nav-link" href="/visits">Visits</a>
       <a class="nav-item nav-link" href="/appointments">Appointments</a>
-       <a class="nav-item nav-link" href="/admins">Admins</a>
+       <a class="nav-item nav-link" href="/users">Users</a>
       <a class="nav-item nav-link" href="/appointments">Facilities</a>
       <div class="username">{{username}}</div>
       <button v-if="isLoggedIn" type="submit" class="btn btn-primary " style="margin-right: 2%;" @click="logout()">Logout</button>
