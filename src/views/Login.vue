@@ -1,6 +1,5 @@
 <template>
 <div class="container">
-    
     <div class="cont">
         <span>Login Below</span>
         <div v-if="showError" class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -21,11 +20,8 @@
             Login
             <span v-if="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         </button>
-   
-   
     </div>
 </div>
-
 </template>
 <script>
 import {mapState} from 'vuex'

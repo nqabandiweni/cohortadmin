@@ -7,5 +7,6 @@ query getUsers {
     surname
     username
     code
+    role
   }
 }`

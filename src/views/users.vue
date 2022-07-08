@@ -2,7 +2,7 @@
     <div class="container">
         <div class="cont">
         <div class="toprow">
-            <button type="button" class="btn btn-primary" >Add New</button>
+            <button type="button" class="btn btn-primary" @click="create()" >Add New</button>
         </div>
         <table class="table table-sm table-hover table-responsive">
             <thead>
@@ -10,6 +10,7 @@
                     <th scope="col">Name</th>
                     <th scope="col">Surname</th>
                     <th scope="col">Facility</th>
+                    <th scope="col">Role</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
@@ -18,6 +19,7 @@
                     <td>{{user.name}}</td>
                     <td>{{user.surname}}</td>
                     <td>{{user.code}}</td>
+                    <td>{{user.role}}</td>
                 </tr>
             </tbody>
         </table>
@@ -36,6 +38,11 @@ export default {
     data(){
         return{
 
+        }
+    },
+    methods:{
+        create(){
+            this.$router.push("/createUser")
         }
     }
 }

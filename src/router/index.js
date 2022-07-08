@@ -45,7 +45,14 @@ const routes = [
   {
     path: '/users',
     name: 'users',
-    component: () => import('../views/users.vue')
+    component: () => import('../views/users.vue'),
+    meta:{requiresAuth:true}
+  },
+  {
+    path: '/createUser',
+    name: 'createUser',
+    component: () => import('../views/createUser.vue'),
+    meta:{requiresAuth:true}
   }
 ]
 
