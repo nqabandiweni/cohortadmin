@@ -6,6 +6,7 @@ import {LOGIN} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
 import { GET_USERS } from '../Queries/Users';
+import { GET_ALL_FACILITIES } from '../Queries/Facilities';
 import {respond} from '../utils/handleResponses'
 const jwt = require('jsonwebtoken')
 
@@ -15,6 +16,7 @@ export default new Vuex.Store({
   state: {
     Appointments:[],
     visits:[],
+    Facilities:[],
     updatedAppointment:{},
     AppointmentExistsMessage:"",
     users:[],
@@ -55,6 +57,9 @@ export default new Vuex.Store({
     },
     setLoading(state,status){
       state.isLoading=status
+    },
+    setFacilities(state,data){
+      state.Facilities=data
     }
   },
   actions: {
@@ -227,6 +232,26 @@ export default new Vuex.Store({
             reject(err)
           })
       })
+    },
+    async getFacilities({ commit }) {
+      try {
+   
+        const response = await graphqlClient.query({
+          // It is important to not use the
+          // ES6 template syntax for variables
+          // directly inside the `gql` query,
+          // because this would make it impossible
+          // for Babel to optimize the code.
+          query:GET_ALL_FACILITIES,
+          fetchPolicy: "no-cache"
+        });
+    
+        
+        commit('setFacilities', response.data.getFacilities);
+        
+      } catch (e) {
+        console.log(e.networkError.result.errors)
+      }
     }
   },
   getters:{
