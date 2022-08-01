@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import gql from 'graphql-tag';
 import graphqlClient from '../utils/graphql';
-import {LOGIN} from '../Mutations/Users'
+import {LOGIN,REGISTER} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
 import { GET_USERS } from '../Queries/Users';
@@ -22,7 +22,9 @@ export default new Vuex.Store({
     users:[],
     token: localStorage.getItem('token') || null,
     loginError:"",
-    isLoading:false
+    registrationError:"",
+    isLoading:false,
+    temporaryPassword:""
   },
   mutations: {
     setVisits(state, visits) {
@@ -41,13 +43,19 @@ export default new Vuex.Store({
     setAppointmentExistsMessage(state,message){
       state.AppointmentExistsMessage=message
     },
+    setRegistrationError(state,message){
+      state.registrationError=message
+    },
+    setRegistrationSuccess(state,temporaryPassword){ 
+      state.temporaryPassword =temporaryPassword
+    },
     setLoginError(state,message){
       state.loginError=message
     },
-    setLoginSuccess(state,data){
+    setLoginSuccess(state,token){
      
-      localStorage.setItem('token',data.token) 
-      state.token =data.token
+      localStorage.setItem('token',token) 
+      state.token =token
     },
     setUsers(state,data){
       state.users=data
@@ -201,6 +209,28 @@ export default new Vuex.Store({
         console.log(e.networkError.result.errors)
       }
     },
+    register({ commit },{name,surname,username,code,role}) {
+      commit('setLoading',true)
+      return new Promise((resolve, reject) => {
+         graphqlClient.mutate({
+          mutation: REGISTER,
+          variables: { name:name,surname:surname,username:username,code:code,role:role },
+          fetchPolicy: 'no-cache'
+      })
+          .then(response => {
+             commit('setLoading',false)
+             let result = respond(response.data.register)
+             console.log(result.type)
+             result.type=="success"?commit('setRegistrationSuccess',result.text):commit('setRegistrationError',result.text)
+             resolve(response)
+          })
+          .catch(err => { 
+           //console.log(err)   
+           commit('setLoading',false)
+            reject(err)
+          })
+      })
+    },
     login({ commit },{username,password}) {
 
       commit('setLoading',true)
@@ -211,19 +241,9 @@ export default new Vuex.Store({
           fetchPolicy: 'no-cache'
       })
           .then(response => {
-     
-            if(response.data.login.__typename=="invalidPasswordError"){
-              commit('setLoginError',response.data.login.invalidPasswordMessage)
-            }else if(response.data.login.__typename=="userNotFoundError"){
-              commit('setLoginError',response.data.login.userNotFoundMessage)
-            }else if(response.data.login.__typename=="invalidDataError"){
-              commit('setLoginError',response.data.login.invalidDataMessage)
-            
-            }else{
-              //console.log(response.data.login.token)
-              commit('setLoginSuccess',response.data.login)
-            } 
-            commit('setLoading',false)
+            let result = respond(response.data.login)
+            result.type=="success"?commit('setLoginSuccess',result.text):commit('setLoginError',result.text)
+             commit('setLoading',false)
               resolve(response)
           })
           .catch(err => { 
@@ -291,6 +311,16 @@ export default new Vuex.Store({
         return null
       }
         
-      }
+      },
+      code:(state,getters)=>{
+        if(getters.isLoggedIn){
+          const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+          return decoded.user.code
+        }
+        else{
+          return null
+        }
+          
+        }
   }
 })

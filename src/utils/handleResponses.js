@@ -3,8 +3,9 @@
 export function respond (i){
     
     let message = {type:"",text:""}
-
+    
     switch(i.__typename){
+      
         case 'invalidPasswordError':
             message.type = "error"
             message.text = i.invalidPasswordMessage
@@ -17,14 +18,31 @@ export function respond (i){
             message.type = "error"
             message.text = i.invalidDataMessage
             break
+        case 'unactivatedUserError':
+            message.type="error"
+            message.text=i.unactivatedUserMessage
+            break
         case 'loginSuccess':
             message.type = "success"
-            message.text = ""
+            message.text = i.token
             break
-        default:
-            message.type = "error"
-            message.text = "Network Error"
+        case 'userExistsError':
+            message.type= "error"
+            message.text=i.userExistsMessage
+            break
+        case 'invalidUserError':
+            message.type="error"
+            message.text=i.invalidUserMessage
+            break
+           
+        case 'successfulRegistration':
+            console.log("here")
+             message.type="success"
+             message.text=i.temporaryPassword
+             break
+        
 
     }
+    
     return message
 }

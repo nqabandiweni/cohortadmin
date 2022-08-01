@@ -3,9 +3,9 @@
         <div class="cont">
             <span>User Registration Form</span>
             <div class="line">
-                <div  class=" right alert alert-warning alert-dismissible fade show" role="alert">
-                Message 
-                <button type="button"  class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div v-if="shownote"  class=" right alert alert-dismissible fade show" :class="alerttype" role="alert">
+                    {{message}}
+                <button type="button" @click="shownote=false" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
             </div>
@@ -38,6 +38,7 @@
                 <div class="right">
                     <button type="submit" class="btn btn-primary" @click="register()">
                         Register
+                        <span v-if="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                     </button>
                 </div>
             </div>
@@ -47,45 +48,76 @@
     </div>   
 </template>
 <script>
+import {respond} from '../utils/handleResponses'
 import {mapGetters, mapState} from 'vuex'
 export default {
     created(){
         this.$store.dispatch('getFacilities')
     },
     computed:{
-        ...mapGetters(['role']),
-        ...mapState(['Facilities']),
+        ...mapGetters(['role','code']),
+        ...mapState(['Facilities','isLoading']),
         facilitynames(){
             return this.Facilities.map((f)=>{return f.name})
         }
     },
     data(){
         return{
+            shownote:false,
+            alerttype:'alert-info',
             username:'',
             name:'',
             surname:'',
             facilityname:'',
-            usertype:"admin"
+            usertype:"admin",
+            message:""
 
         }
     },
     methods:{
+        notification(type,text){
+            type=='success'?this.alerttype= 'alert-info':this.alerttype= 'alert-warning'
+            this.message=text
+            this.shownote=true
+            
+        },
         register:function(){
             const registrar = this.role
-
-            let code = ''
-            for(var i=0;i<this.Facilities.length;i++){
-                if(this.Facilities[i].name==this.facilityname){
-                    code=this.Facilities[i].code
-                }
-            }
-            console.log(code) 
             if(registrar=="admin"){
-                this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname})
+                this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:"user",code:this.code})
+                .then((resp)=>{
+                     let result = respond(resp.data.register)
+                     this.notification(result.type,result.text)    
+                })
             }else if(registrar=="vendor"){
-                this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname})
+                if(this.usertype=="admin"){
+                    this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:this.usertype,code:this.getFacilityCode()})
+                    .then((resp)=>{
+                        
+                        let result = respond(resp.data.register)
+                       
+                        this.notification(result.type,result.text)    
+                    })
+                }else{
+                    this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:this.usertype,code:"vendor"})
+                    .then((resp)=>{
+                        let result = respond(resp.data.register)
+                        this.notification(result.type,result.text)    
+                        
+                    })
+                }
+                
             }
 
+            },
+            getFacilityCode:function(){
+                let code = ''
+                for(var i=0;i<this.Facilities.length;i++){
+                    if(this.Facilities[i].name==this.facilityname){
+                        code=this.Facilities[i].code
+                    }
+                }
+                return code 
             }
 
         }

@@ -13,9 +13,29 @@ mutation($username: String!,$password: String!){
       ...on invalidDataError{
           invalidDataMessage
       }
+      ...on unactivatedUserError{
+      unactivatedUserMessage
+    }
       ...on loginSuccess{
         username
         token
       }
       }
     }`
+  export const REGISTER = gql`
+  mutation ($name:String!,$surname:String!,$username:String!,$code:String!,$role:String!){
+    register(name:$name,surname:$surname,username:$username,code:$code,role:$role){
+      __typename
+      ...on successfulRegistration{
+        username
+        temporaryPassword
+      }
+      ...on userExistsError{
+        userExistsMessage
+      }
+      ...on invalidUserError{
+        invalidUserMessage
+      }
+  }
+}
+`
