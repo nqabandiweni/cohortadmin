@@ -36,12 +36,29 @@ export function respond (i){
             break
            
         case 'successfulRegistration':
-            console.log("here")
              message.type="success"
              message.text=i.temporaryPassword
              break
-        
-
+        case 'invalidActivationError':
+            message.type="error"
+            message.text=i.invalidActivationMessage
+            break
+        case 'passwordMismatchError':
+            message.type="error"
+            message.text=i.passwordMismatchMessage
+            break
+        case 'alreadyActivatedError':
+            message.type="error"
+            message.text=i.alreadyActivatedMessage
+            break
+        case 'invalidTemporaryPasswordError':
+            message.type="error"
+            message.text=i.invalidTemporaryPasswordMessage
+            break
+        case  'successfulActivation':
+            message.type="success"
+            message.text=i.successMessage
+            break
     }
     
     return message

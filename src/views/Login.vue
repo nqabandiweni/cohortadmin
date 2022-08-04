@@ -20,6 +20,9 @@
             Login
             <span v-if="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         </button>
+        <div>
+            <router-link to="/activate">Activate Account</router-link>
+        </div>
     </div>
 </div>
 </template>

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import gql from 'graphql-tag';
 import graphqlClient from '../utils/graphql';
-import {LOGIN,REGISTER} from '../Mutations/Users'
+import {LOGIN,ACTIVATE,REGISTER} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
 import { GET_USERS } from '../Queries/Users';
@@ -24,7 +24,8 @@ export default new Vuex.Store({
     loginError:"",
     registrationError:"",
     isLoading:false,
-    temporaryPassword:""
+    temporaryPassword:"",
+    activatedMessage:""
   },
   mutations: {
     setVisits(state, visits) {
@@ -49,11 +50,16 @@ export default new Vuex.Store({
     setRegistrationSuccess(state,temporaryPassword){ 
       state.temporaryPassword =temporaryPassword
     },
+    setActivateError(state,message){
+      state.activateError=message
+    },
+    setActivateSuccess(state,message){
+      state.activatedMessage =message
+    },
     setLoginError(state,message){
       state.loginError=message
     },
     setLoginSuccess(state,token){
-     
       localStorage.setItem('token',token) 
       state.token =token
     },
@@ -155,14 +161,12 @@ export default new Vuex.Store({
 
         fetchPolicy: 'no-cache'
       });
-  if(response.data.createAppointment.__typename=="AppointmentExistsError"){
-    commit('setAppointmentExistsMessage',response.data.createAppointment.AppointmentExistsMessage)
-  }else{
-    commit('addAppointment',Appointment)
-  }
+            if(response.data.createAppointment.__typename=="AppointmentExistsError"){
+              commit('setAppointmentExistsMessage',response.data.createAppointment.AppointmentExistsMessage)
+            }else{
+              commit('addAppointment',Appointment)
+            }
       
-    
-        
       } catch (e) {
         console.log(e.networkError.result.errors)
       }
@@ -243,6 +247,28 @@ export default new Vuex.Store({
           .then(response => {
             let result = respond(response.data.login)
             result.type=="success"?commit('setLoginSuccess',result.text):commit('setLoginError',result.text)
+             commit('setLoading',false)
+              resolve(response)
+          })
+          .catch(err => { 
+           // console.log(err)   
+           commit('setLoading',false)
+            reject(err)
+          })
+      })
+    },
+    activate({ commit },{username,temporaryPassword,password,confirmPassword}) {
+
+      commit('setLoading',true)
+      return new Promise((resolve, reject) => {
+         graphqlClient.mutate({
+          mutation: ACTIVATE,
+          variables: { username:username,password:password,temporaryPassword:temporaryPassword,confirmPassword:confirmPassword },
+          fetchPolicy: 'no-cache'
+      })
+          .then(response => {
+            let result = respond(response.data.activate)
+            result.type=="success"?commit('setActivateSuccess',result.text):commit('setActivateError',result.text)
              commit('setLoading',false)
               resolve(response)
           })
