@@ -8,8 +8,8 @@
         </div>
 
         <div>
-            <label for="exampleInputEmail1" class="form-label">Username</label>
-            <input v-model="username" type="username" >
+            <label for="exampleInputEmail1" class="form-label">Email</label>
+            <input v-model="email" type="text" >
         </div>
         <div>
             <label for="exampleInputPassword1" class="form-label">Password</label>
@@ -32,7 +32,7 @@ import {respond} from '../utils/handleResponses.js'
 export default {
     data(){
         return{
-            username:"",
+            email:"",
             password:"",
             showError:false,
             errorMessage:""
@@ -45,7 +45,7 @@ export default {
     methods:{
         login: function(e){
            
-            this.$store.dispatch('login',{username:this.username,password:this.password})
+            this.$store.dispatch('login',{email:this.email,password:this.password})
             .then((resp)=>{
                let result = respond(resp.data.login)
               

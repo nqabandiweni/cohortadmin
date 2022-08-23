@@ -5,7 +5,7 @@ query getUsers {
   getUsers {
     name
     surname
-    username
+    email
     code
     role
   }

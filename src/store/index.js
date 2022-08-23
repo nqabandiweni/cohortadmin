@@ -213,12 +213,12 @@ export default new Vuex.Store({
         console.log(e.networkError.result.errors)
       }
     },
-    register({ commit },{name,surname,username,code,role}) {
+    register({ commit },{name,surname,email,code,role}) {
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
          graphqlClient.mutate({
           mutation: REGISTER,
-          variables: { name:name,surname:surname,username:username,code:code,role:role },
+          variables: { name:name,surname:surname,email:email,code:code,role:role },
           fetchPolicy: 'no-cache'
       })
           .then(response => {
@@ -235,13 +235,13 @@ export default new Vuex.Store({
           })
       })
     },
-    login({ commit },{username,password}) {
+    login({ commit },{email,password}) {
 
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
          graphqlClient.mutate({
           mutation: LOGIN,
-          variables: { username:username,password:password },
+          variables: { email:email,password:password },
           fetchPolicy: 'no-cache'
       })
           .then(response => {
@@ -257,13 +257,13 @@ export default new Vuex.Store({
           })
       })
     },
-    activate({ commit },{username,temporaryPassword,password,confirmPassword}) {
+    activate({ commit },{email,temporaryPassword,password,confirmPassword}) {
 
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
          graphqlClient.mutate({
           mutation: ACTIVATE,
-          variables: { username:username,password:password,temporaryPassword:temporaryPassword,confirmPassword:confirmPassword },
+          variables: { email:email,password:password,temporaryPassword:temporaryPassword,confirmPassword:confirmPassword },
           fetchPolicy: 'no-cache'
       })
           .then(response => {
@@ -328,10 +328,10 @@ export default new Vuex.Store({
     
       
     },
-    username:(state,getters)=>{
+    name:(state,getters)=>{
       if(getters.isLoggedIn){
         const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
-        return decoded.user.username
+        return decoded.user.name
       }
       else{
         return null

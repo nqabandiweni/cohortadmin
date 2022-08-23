@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 
   export const REGISTER = gql`
-  mutation ($name:String!,$surname:String!,$username:String!,$code:String!,$role:String!){
-    register(name:$name,surname:$surname,username:$username,code:$code,role:$role){
+  mutation ($name:String!,$surname:String!,$email:String!,$code:String!,$role:String!){
+    register(name:$name,surname:$surname,email:$email,code:$code,role:$role){
       __typename
       ...on successfulRegistration{
-        username
+        email
         temporaryPassword
       }
       ...on userExistsError{
@@ -18,8 +18,8 @@ import gql from 'graphql-tag';
 }
 `
 export const ACTIVATE = gql`
-mutation($username: String!,$password: String!,$temporaryPassword:String!,$confirmPassword:String!){
-  activate(username:$username,password:$password,temporaryPassword:$temporaryPassword,confirmPassword:$confirmPassword){
+mutation($email: String!,$password: String!,$temporaryPassword:String!,$confirmPassword:String!){
+  activate(email:$email,password:$password,temporaryPassword:$temporaryPassword,confirmPassword:$confirmPassword){
     __typename
     ...on invalidActivationError{
       invalidActivationMessage
@@ -45,8 +45,8 @@ mutation($username: String!,$password: String!,$temporaryPassword:String!,$confi
       }
     }`
     export const LOGIN = gql`
-    mutation($username: String!,$password: String!){
-      login(username:$username,password:$password){
+    mutation($email: String!,$password: String!){
+      login(email:$email,password:$password){
         __typename
           ...on invalidPasswordError{
             invalidPasswordMessage
@@ -61,7 +61,6 @@ mutation($username: String!,$password: String!,$temporaryPassword:String!,$confi
           unactivatedUserMessage
         }
           ...on loginSuccess{
-            username
             token
           }
           }

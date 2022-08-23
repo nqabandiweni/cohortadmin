@@ -6,7 +6,7 @@
       <a v-if="role=='admin'" class="nav-item nav-link" href="/appointments">Appointments</a>
        <a class="nav-item nav-link" href="/users">Users</a>
       <a v-if="role=='vendor'" class="nav-item nav-link" href="/appointments">Facilities</a>
-      <div class="username">{{username}}</div>
+      <div class="username">{{name}}</div>
       <button v-if="isLoggedIn" type="submit" class="btn btn-primary " style="margin-right: 2%;" @click="logout()">Logout</button>
     </nav>
    
@@ -24,7 +24,7 @@ export default {
     }
   },
   computed:{
-    ...mapGetters(['isLoggedIn','role','username'])
+    ...mapGetters(['isLoggedIn','role','name'])
   },
   methods:{
     logout:function(){

@@ -17,7 +17,7 @@
                     </select>
                 </div>
                 <div class="right">
-                    <input v-model="username" type="text" class="form-control" placeholder="Username" aria-label="First name">
+                    <input v-model="email" type="email" class="form-control" placeholder="email" aria-label="First name">
                 </div>
             </div>
             <div class="line">
@@ -65,7 +65,7 @@ export default {
         return{
             shownote:false,
             alerttype:'alert-info',
-            username:'',
+            email:'',
             name:'',
             surname:'',
             facilityname:'',
@@ -84,14 +84,14 @@ export default {
         register:function(){
             const registrar = this.role
             if(registrar=="admin"){
-                this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:"user",code:this.code})
+                this.$store.dispatch('register',{email:this.email,name:this.name,surname:this.surname,role:"user",code:this.code})
                 .then((resp)=>{
                      let result = respond(resp.data.register)
                      this.notification(result.type,result.text)    
                 })
             }else if(registrar=="vendor"){
                 if(this.usertype=="admin"){
-                    this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:this.usertype,code:this.getFacilityCode()})
+                    this.$store.dispatch('register',{email:this.email,name:this.name,surname:this.surname,role:this.usertype,code:this.getFacilityCode()})
                     .then((resp)=>{
                         
                         let result = respond(resp.data.register)
@@ -99,7 +99,7 @@ export default {
                         this.notification(result.type,result.text)    
                     })
                 }else{
-                    this.$store.dispatch('register',{username:this.username,name:this.name,surname:this.surname,role:this.usertype,code:"vendor"})
+                    this.$store.dispatch('register',{email:this.email,name:this.name,surname:this.surname,role:this.usertype,code:"vendor"})
                     .then((resp)=>{
                         let result = respond(resp.data.register)
                         this.notification(result.type,result.text)    
