@@ -3,6 +3,7 @@
 export function respond (i){
     
     let message = {type:"",text:""}
+   
     
     switch(i.__typename){
       
@@ -58,6 +59,18 @@ export function respond (i){
         case  'successfulActivation':
             message.type="success"
             message.text=i.successMessage
+            break
+        case  'authorisationError':
+            message.type="error"
+            message.text=i.authorisationMessage
+            break
+        case  'deleteSuccess':
+            message.type="success"
+            message.text=i.deleteSuccessMessage
+            break
+        case 'successfulPasswordReset':
+            message.type="success"
+            message.text=i.temporaryPassword
             break
     }
     

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import gql from 'graphql-tag';
 import graphqlClient from '../utils/graphql';
-import {LOGIN,ACTIVATE,REGISTER} from '../Mutations/Users'
+import {LOGIN,ACTIVATE,REGISTER,DELETE_USER,RESET_PASSWORD} from '../Mutations/Users'
 import { UPDATE_APPOINTMENT ,DELETE_APPOINTMENT,CREATE_APPOINTMENT } from '../Mutations/Appointments';
 import {GET_ALL_APPOINTMENTS,GET_VISITS} from '../Queries/Appointments'
 import { GET_USERS } from '../Queries/Users';
@@ -25,7 +25,11 @@ export default new Vuex.Store({
     registrationError:"",
     isLoading:false,
     temporaryPassword:"",
-    activatedMessage:""
+    activatedMessage:"",
+    activateError:"",
+    deleteSuccessMessage:"",
+    deleteErrorMessage:""
+
   },
   mutations: {
     setVisits(state, visits) {
@@ -49,6 +53,12 @@ export default new Vuex.Store({
     },
     setRegistrationSuccess(state,temporaryPassword){ 
       state.temporaryPassword =temporaryPassword
+    },
+    setDeleteError(state,message){
+      state.deleteErrorMessage=message
+    },
+    setDeleteSuccess(state,message){ 
+      state.deleteSuccessMessage =message
     },
     setActivateError(state,message){
       state.activateError=message
@@ -74,6 +84,12 @@ export default new Vuex.Store({
     },
     setFacilities(state,data){
       state.Facilities=data
+    },
+    setResetDetails(state,temporaryPassword){
+      state.temporaryPassword=temporaryPassword
+    },
+    setResetError(state,message){
+      state.resetError=message
     }
   },
   actions: {
@@ -213,7 +229,7 @@ export default new Vuex.Store({
         console.log(e.networkError.result.errors)
       }
     },
-    register({ commit },{name,surname,email,code,role}) {
+    async register({ commit },{name,surname,email,code,role}) {
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
          graphqlClient.mutate({
@@ -235,7 +251,7 @@ export default new Vuex.Store({
           })
       })
     },
-    login({ commit },{email,password}) {
+    async login({ commit },{email,password}) {
 
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
@@ -257,7 +273,7 @@ export default new Vuex.Store({
           })
       })
     },
-    activate({ commit },{email,temporaryPassword,password,confirmPassword}) {
+    async activate({ commit },{email,temporaryPassword,password,confirmPassword}) {
 
       commit('setLoading',true)
       return new Promise((resolve, reject) => {
@@ -269,6 +285,49 @@ export default new Vuex.Store({
           .then(response => {
             let result = respond(response.data.activate)
             result.type=="success"?commit('setActivateSuccess',result.text):commit('setActivateError',result.text)
+             commit('setLoading',false)
+              resolve(response)
+          })
+          .catch(err => { 
+           // console.log(err)   
+           commit('setLoading',false)
+            reject(err)
+          })
+      })
+    },
+    async deleteUser({ commit },{email}) {
+      
+      commit('setLoading',true)
+      return new Promise((resolve, reject) => {
+         graphqlClient.mutate({
+          mutation: DELETE_USER,
+          variables: { email:email},
+          fetchPolicy: 'no-cache'
+      })
+          .then(response => {
+            let result = respond(response.data.deleteUser)
+            result.type=="success"?commit('setDeleteSuccess',result.text):commit('setDeleteError',result.text)
+             commit('setLoading',false)
+              resolve(response)
+          })
+          .catch(err => { 
+           // console.log(err)   
+           commit('setLoading',false)
+            reject(err)
+          })
+      })
+    },
+    async resetPassword({ commit },{email}) {
+      commit('setLoading',true)
+      return new Promise((resolve, reject) => {
+         graphqlClient.mutate({
+          mutation: RESET_PASSWORD,
+          variables: { email:email},
+          fetchPolicy: 'no-cache'
+      })
+          .then(response => {
+            let result = respond(response.data.resetPassword)
+            result.type=="success"?commit('setResetDetails',result.text):commit('setResetError',result.text)
              commit('setLoading',false)
               resolve(response)
           })
@@ -302,19 +361,23 @@ export default new Vuex.Store({
   },
   getters:{
     isLoggedIn: state => {
-      // const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
-      // if(state.token==null){
-      //   return false
-      // }else if(decoded.user){
-      //   return true
-      // }else{
-      //   return false
-      // }
       if(state.token == null || state.token == ""){
         return false
       }else {
       return true
       }
+    },
+    myusers:(state,getters)=>{
+      if(getters.isLoggedIn){
+        const decoded = jwt.decode(state.token,process.env.VUE_APP_SECRET)
+        const myemail = decoded.user.email
+        return state.users.filter(function(user){
+          return user.email!==myemail
+        })
+      }else{
+        return []
+      }
+
     },
     role:(state,getters)=>{
     

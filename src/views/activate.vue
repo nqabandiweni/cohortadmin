@@ -5,12 +5,12 @@
                 <p >User Activation Form</p>
                 <div v-if="shownote"  class=" right alert alert-dismissible fade show" :class="alerttype" role="alert">
                     {{message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button @click="shownote=false" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 <div class="line">
                     <div class="form-group">
-                        <small id="emailHelp" class="form-text text-muted">Your Username</small>
-                        <input v-model="username" type="text" placeholder="Username"  class="form-control"  >
+                        <small id="emailHelp" class="form-text text-muted">Your email</small>
+                        <input v-model="email" type="text" placeholder="email"  class="form-control"  >
                     </div>
                     <div class="form-group">
                         <small id="passHelp" class="form-text text-muted"> Never share Your Password</small>
@@ -51,7 +51,7 @@ export default {
             alerttype:'alert-info',
             message:"",
             shownote:false,
-            username:"",
+            email:"",
             password:"",
             temporaryPassword:"",
             confirmPassword:""
@@ -70,7 +70,7 @@ export default {
             
         },
         activate:function(){
-            this.$store.dispatch('activate',{username:this.username,password:this.password,temporaryPassword:this.temporaryPassword,confirmPassword:this.confirmPassword})
+            this.$store.dispatch('activate',{email:this.email,password:this.password,temporaryPassword:this.temporaryPassword,confirmPassword:this.confirmPassword})
             .then((resp)=>{
                 let result = respond(resp.data.activate)
                 this.notification(result.type,result.text)
@@ -107,4 +107,5 @@ export default {
     padding: 2px;
     margin-top: 2px;
 }
+
 </style>

@@ -9,7 +9,7 @@
 
         <div>
             <label for="exampleInputEmail1" class="form-label">Email</label>
-            <input v-model="email" type="text" >
+            <input v-model="email" type="email" >
         </div>
         <div>
             <label for="exampleInputPassword1" class="form-label">Password</label>

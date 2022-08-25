@@ -65,3 +65,31 @@ mutation($email: String!,$password: String!,$temporaryPassword:String!,$confirmP
           }
           }
         }`
+
+    export const DELETE_USER = gql `
+    mutation DeleteUser($email:String!){
+      deleteUser(email: $email){
+        ...on authorisationError{
+          authorisationMessage
+        }
+        ...on userNotFoundError{
+            userNotFoundMessage
+        }
+        ...on User{
+            email
+            name
+        }
+      }
+  
+    }`
+export const RESET_PASSWORD = gql`
+mutation ResetPassword($email:String!){
+  resetPassword(email: $email){
+    ...on userNotFoundError{
+      userNotFoundMessage
+    }
+    ...on successfulPasswordReset{
+      temporaryPassword
+    }
+  }
+}`
